@@ -2,16 +2,16 @@ package pgxredis_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pgx-contrib/pgxcache"
 	"github.com/pgx-contrib/pgxredis"
 	"github.com/redis/go-redis/v9"
 )
-
-var count int
 
 func ExampleQueryCacher() {
 	config, err := pgxpool.ParseConfig(os.Getenv("PGX_DATABASE_URL"))
@@ -23,6 +23,7 @@ func ExampleQueryCacher() {
 	if err != nil {
 		panic(err)
 	}
+	defer conn.Close()
 
 	// create a new client options
 	options := &redis.UniversalOptions{}
@@ -42,8 +43,25 @@ func ExampleQueryCacher() {
 		Querier: conn,
 	}
 
-	row := querier.QueryRow(context.TODO(), "SELECT 1")
-	if err := row.Scan(&count); err != nil {
+	rows, err := querier.Query(context.TODO(), "SELECT * from customer")
+	if err != nil {
 		panic(err)
+	}
+	// close the rows
+	defer rows.Close()
+
+	// Customer struct must be defined
+	type Customer struct {
+		FirstName string `db:"first_name"`
+		LastName  string `db:"last_name"`
+	}
+
+	for rows.Next() {
+		customer, err := pgx.RowToStructByName[Customer](rows)
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println(customer.FirstName)
 	}
 }
