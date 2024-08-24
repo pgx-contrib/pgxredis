@@ -14,38 +14,24 @@ var _ pgxcache.QueryCacher = &QueryCacher{}
 // QueryCacher implements cache.QueryCacher interface to use redis as backend with
 // go-redis as the redis client library.
 type QueryCacher struct {
-	client redis.UniversalClient
-	prefix string
-}
-
-// NewQueryCacher creates a new instance of redis backend using go-redis client.
-// All keys created in redis by pgxcache will have start with prefix.
-func NewQueryCacher(client redis.UniversalClient, prefix string) *QueryCacher {
-	return &QueryCacher{
-		client: client,
-		prefix: prefix,
-	}
-}
-
-// NewQueryCacherWithOptions creates a new instance of redis backend using go-redis
-func NewQueryCacherWithOptions(options *redis.UniversalOptions, prefix string) *QueryCacher {
-	client := redis.NewUniversalClient(options)
-	// done!
-	return NewQueryCacher(client, prefix)
+	// Client is the redis client
+	Client redis.UniversalClient
+	// Prefix is the prefix for the cache key
+	Prefix string
 }
 
 // Get gets a cache item from redis. Returns pointer to the item, a boolean
 // which represents whether key exists or not and an error.
 func (r *QueryCacher) Get(ctx context.Context, key *pgxcache.QueryKey) (*pgxcache.QueryResult, error) {
-	b, err := r.client.Get(ctx, r.prefix+key.String()).Bytes()
+	data, err := r.Client.Get(ctx, r.prefix(key)).Bytes()
 	switch err {
 	case nil:
-		var item pgxcache.QueryResult
+		item := &pgxcache.QueryResult{}
 		// unmarshal the result
-		if err := msgpack.Unmarshal(b, &item); err != nil {
+		if err := msgpack.Unmarshal(data, item); err != nil {
 			return nil, err
 		}
-		return &item, nil
+		return item, nil
 	case redis.Nil:
 		return nil, nil
 	default:
@@ -60,11 +46,15 @@ func (r *QueryCacher) Set(ctx context.Context, key *pgxcache.QueryKey, item *pgx
 		return err
 	}
 
-	_, err = r.client.Set(ctx, r.prefix+key.String(), data, ttl).Result()
+	_, err = r.Client.Set(ctx, r.prefix(key), data, ttl).Result()
 	return err
 }
 
 // Close closes the redis client.
 func (r *QueryCacher) Close() error {
-	return r.client.Close()
+	return r.Client.Close()
+}
+
+func (r *QueryCacher) prefix(key *pgxcache.QueryKey) string {
+	return r.Prefix + key.String()
 }

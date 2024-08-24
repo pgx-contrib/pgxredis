@@ -25,10 +25,11 @@ func ExampleQueryCacher() {
 	}
 	defer conn.Close()
 
-	// create a new client options
-	options := &redis.UniversalOptions{}
 	// Create a new cacher
-	cacher := pgxredis.NewQueryCacherWithOptions(options, "PGX_PREFIX")
+	cacher := &pgxredis.QueryCacher{
+		Client: redis.NewUniversalClient(&redis.UniversalOptions{}),
+		Prefix: "PGX_CACHE_KEY_",
+	}
 
 	// create a new querier
 	querier := &pgxcache.Querier{
