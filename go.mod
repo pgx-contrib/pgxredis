@@ -3,7 +3,7 @@ module github.com/pgx-contrib/pgxredis
 go 1.23.0
 
 require (
-	github.com/jackc/pgx/v5 v5.6.0
+	github.com/jackc/pgx/v5 v5.7.0
 	github.com/pgx-contrib/pgxcache v0.0.0-20240822090951-1d9ecdbaca88
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/vmihailenco/msgpack/v4 v4.3.13
