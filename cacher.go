@@ -6,7 +6,6 @@ import (
 
 	"github.com/pgx-contrib/pgxcache"
 	"github.com/redis/go-redis/v9"
-	"github.com/vmihailenco/msgpack/v4"
 )
 
 var _ pgxcache.QueryCacher = &QueryCacher{}
@@ -28,7 +27,7 @@ func (r *QueryCacher) Get(ctx context.Context, key *pgxcache.QueryKey) (*pgxcach
 	case nil:
 		item := &pgxcache.QueryResult{}
 		// unmarshal the result
-		if err := msgpack.Unmarshal(data, item); err != nil {
+		if err := item.UnmarshalText(data); err != nil {
 			return nil, err
 		}
 		return item, nil
@@ -41,13 +40,19 @@ func (r *QueryCacher) Get(ctx context.Context, key *pgxcache.QueryKey) (*pgxcach
 
 // Set sets the given item into redis with provided TTL duration.
 func (r *QueryCacher) Set(ctx context.Context, key *pgxcache.QueryKey, item *pgxcache.QueryResult, ttl time.Duration) error {
-	data, err := msgpack.Marshal(item)
+	data, err := item.MarshalText()
 	if err != nil {
 		return err
 	}
 
 	_, err = r.Client.Set(ctx, r.prefix(key), data, ttl).Result()
 	return err
+}
+
+// Reset resets the cache.
+func (r *QueryCacher) Reset(ctx context.Context) error {
+	// TODO: implement this method
+	return nil
 }
 
 // Close closes the redis client.
