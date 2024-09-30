@@ -21,11 +21,11 @@ type QueryCacher struct {
 
 // Get gets a cache item from redis. Returns pointer to the item, a boolean
 // which represents whether key exists or not and an error.
-func (r *QueryCacher) Get(ctx context.Context, key *pgxcache.QueryKey) (*pgxcache.QueryResult, error) {
+func (r *QueryCacher) Get(ctx context.Context, key *pgxcache.QueryKey) (*pgxcache.QueryItem, error) {
 	data, err := r.Client.Get(ctx, r.prefix(key)).Bytes()
 	switch err {
 	case nil:
-		item := &pgxcache.QueryResult{}
+		item := &pgxcache.QueryItem{}
 		// unmarshal the result
 		if err := item.UnmarshalText(data); err != nil {
 			return nil, err
@@ -39,13 +39,13 @@ func (r *QueryCacher) Get(ctx context.Context, key *pgxcache.QueryKey) (*pgxcach
 }
 
 // Set sets the given item into redis with provided TTL duration.
-func (r *QueryCacher) Set(ctx context.Context, key *pgxcache.QueryKey, item *pgxcache.QueryResult, ttl time.Duration) error {
+func (r *QueryCacher) Set(ctx context.Context, key *pgxcache.QueryKey, item *pgxcache.QueryItem, lifetime time.Duration) error {
 	data, err := item.MarshalText()
 	if err != nil {
 		return err
 	}
 
-	_, err = r.Client.Set(ctx, r.prefix(key), data, ttl).Result()
+	_, err = r.Client.Set(ctx, r.prefix(key), data, lifetime).Result()
 	return err
 }
 
