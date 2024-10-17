@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/pgx-contrib/pgxcache v0.0.0-20240930030356-0d1c9167cd6c
-	github.com/redis/go-redis/v9 v9.6.2
+	github.com/redis/go-redis/v9 v9.7.0
 )
 
 require (
