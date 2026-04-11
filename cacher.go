@@ -49,9 +49,24 @@ func (r *QueryCacher) Set(ctx context.Context, key *pgxcache.QueryKey, item *pgx
 	return err
 }
 
-// Reset resets the cache.
+// Reset resets the cache by deleting all keys matching the configured prefix.
 func (r *QueryCacher) Reset(ctx context.Context) error {
-	// TODO: implement this method
+	var cursor uint64
+	for {
+		keys, next, err := r.Client.Scan(ctx, cursor, r.Prefix+"*", 100).Result()
+		if err != nil {
+			return err
+		}
+		if len(keys) > 0 {
+			if err := r.Client.Del(ctx, keys...).Err(); err != nil {
+				return err
+			}
+		}
+		cursor = next
+		if cursor == 0 {
+			break
+		}
+	}
 	return nil
 }
 

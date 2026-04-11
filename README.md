@@ -1,9 +1,97 @@
 # pgxredis
 
-A redis layer for pgxcache
-
+[![CI](https://github.com/pgx-contrib/pgxredis/actions/workflows/ci.yml/badge.svg)](https://github.com/pgx-contrib/pgxredis/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/pgx-contrib/pgxredis)](https://github.com/pgx-contrib/pgxredis/releases)
 [![Go Reference](https://pkg.go.dev/badge/github.com/pgx-contrib/pgxredis.svg)](https://pkg.go.dev/github.com/pgx-contrib/pgxredis)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/pgx-contrib/pgxredis)](go.mod)
+[![pgx](https://img.shields.io/badge/pgx-v5-blue)](https://github.com/jackc/pgx)
+[![Redis](https://img.shields.io/badge/redis-go--redis%2Fv9-red)](https://github.com/redis/go-redis)
 
-## Getting Started
+Redis cache backend for [pgxcache](https://github.com/pgx-contrib/pgxcache) — cache PostgreSQL query results in Redis using [go-redis](https://github.com/redis/go-redis).
 
-You can use these [examples](https://pkg.go.dev/github.com/pgx-contrib/pgxredis#pkg-examples) to get started.
+## Features
+
+- Implements the `pgxcache.QueryCacher` interface backed by Redis
+- Key namespacing via a configurable `Prefix` field
+- `Reset()` efficiently removes all cache keys matching the prefix using `SCAN` + `DEL`
+- Works with any `redis.UniversalClient` (single node, sentinel, cluster)
+
+## Installation
+
+```sh
+go get github.com/pgx-contrib/pgxredis
+```
+
+## Usage
+
+### Basic
+
+```go
+cacher := &pgxredis.QueryCacher{
+    Client: redis.NewUniversalClient(&redis.UniversalOptions{
+        Addrs: []string{"localhost:6379"},
+    }),
+    Prefix: "pgxcache:",
+}
+
+querier := &pgxcache.Querier{
+    Options: &pgxcache.QueryOptions{
+        MaxLifetime: 30 * time.Second,
+        MaxRows:     100,
+    },
+    Cacher:  cacher,
+    Querier: pool,
+}
+```
+
+### With a URL
+
+```go
+opts, err := redis.ParseURL(os.Getenv("REDIS_URL"))
+if err != nil {
+    panic(err)
+}
+
+cacher := &pgxredis.QueryCacher{
+    Client: redis.NewClient(opts),
+    Prefix: "pgxcache:",
+}
+```
+
+### With an existing client
+
+```go
+cacher := &pgxredis.QueryCacher{
+    Client: existingRedisClient,
+    Prefix: "myapp:pgxcache:",
+}
+```
+
+## Contributing
+
+### Dev Container
+
+Open the project in VS Code and choose **Reopen in Container**. The dev container starts a Redis service and sets `REDIS_URL` automatically.
+
+```sh
+devcontainer up --workspace-folder .
+```
+
+### Nix
+
+A `flake.nix` is provided for a reproducible dev shell:
+
+```sh
+nix develop
+go tool ginkgo run -r
+```
+
+### Running tests locally
+
+```sh
+REDIS_URL=redis://localhost:6379/0 go tool ginkgo run -r
+```
+
+## License
+
+[MIT](LICENSE)
