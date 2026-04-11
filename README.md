@@ -67,29 +67,33 @@ cacher := &pgxredis.QueryCacher{
 }
 ```
 
-## Contributing
+## Development
 
-### Dev Container
+### DevContainer
 
-Open the project in VS Code and choose **Reopen in Container**. The dev container starts a Redis service and sets `REDIS_URL` automatically.
+Open in VS Code with the Dev Containers extension. The environment provides Go,
+Redis, and Nix automatically.
 
-```sh
-devcontainer up --workspace-folder .
+```
+REDIS_URL=redis://redis:6379/0
 ```
 
 ### Nix
 
-A `flake.nix` is provided for a reproducible dev shell:
-
-```sh
-nix develop
+```bash
+nix develop          # enter shell with Go
 go tool ginkgo run -r
 ```
 
-### Running tests locally
+### Run tests
 
-```sh
-REDIS_URL=redis://localhost:6379/0 go tool ginkgo run -r
+```bash
+# Unit tests only (no Redis required)
+go tool ginkgo run -r
+
+# With integration tests
+export REDIS_URL="redis://localhost:6379/0"
+go tool ginkgo run -r
 ```
 
 ## License
