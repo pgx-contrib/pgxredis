@@ -3,11 +3,11 @@ module github.com/pgx-contrib/pgxredis
 go 1.25.0
 
 require (
-	github.com/jackc/pgx/v5 v5.9.2
+	github.com/jackc/pgx/v5 v5.10.0
 	github.com/onsi/ginkgo/v2 v2.29.0
 	github.com/onsi/gomega v1.41.0
 	github.com/pgx-contrib/pgxcache v0.0.0-20241030071949-0f8c0f2ebc7e
-	github.com/redis/go-redis/v9 v9.19.0
+	github.com/redis/go-redis/v9 v9.20.0
 )
 
 require (
