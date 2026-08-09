@@ -7,7 +7,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.32.0
 	github.com/onsi/gomega v1.42.1
 	github.com/pgx-contrib/pgxcache v0.0.0-20241030071949-0f8c0f2ebc7e
-	github.com/redis/go-redis/v9 v9.21.0
+	github.com/redis/go-redis/v9 v9.22.0
 )
 
 require (
