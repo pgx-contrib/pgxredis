@@ -3,7 +3,7 @@ module github.com/pgx-contrib/pgxredis
 go 1.26.0
 
 require (
-	github.com/jackc/pgx/v5 v5.12.0
+	github.com/jackc/pgx/v5 v5.13.0
 	github.com/onsi/ginkgo/v2 v2.34.0
 	github.com/onsi/gomega v1.44.0
 	github.com/pgx-contrib/pgxcache v0.0.0-20261001053915-05f598dbfd1a
