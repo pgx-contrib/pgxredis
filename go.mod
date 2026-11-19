@@ -6,7 +6,7 @@ require (
 	github.com/jackc/pgx/v5 v5.13.0
 	github.com/onsi/ginkgo/v2 v2.34.0
 	github.com/onsi/gomega v1.44.0
-	github.com/pgx-contrib/pgxcache v0.0.0-20261001053915-05f598dbfd1a
+	github.com/pgx-contrib/pgxcache v0.0.0-20261119110045-dbc6585ff4f4
 	github.com/redis/go-redis/v9 v9.23.0
 )
 
